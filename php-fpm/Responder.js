@@ -34,8 +34,8 @@ class Responder extends FCGIClient.FCGIClient {
         this.send(FCGI.MSG.STDIN, Buffer.alloc(0));
     }
 
-    onError(e) {
-        this.next(e);
+    onError() {
+        this.next();
     }
 
     onClose() {
