@@ -2,11 +2,11 @@
 
 exports = module.exports = init;
 
-var express = require("express");
-var Responder = require("./Responder");
+const Responder = require("./Responder");
+const fs = require("fs");
 
-function init(opt) {
-    return new Handler(opt).router;
+function init(opt, req, res, next) {
+    return new Handler(opt, req, res, next);
 }
 
 function withoutQueryString(url) {
@@ -15,28 +15,28 @@ function withoutQueryString(url) {
 }
 
 class Handler {
-    constructor(opt) {
+    constructor(opt, req, res, next) {
         this.opt = opt;
         this.connections = new Array(100);
-        this.router = express.Router();
-        this.router.use(this.handle.bind(this));
-        this.router.use(express.static(opt.documentRoot));
+        this.handle(req, res, next);
     }
 
     handle(req, res, next) {
+        this.script = withoutQueryString(req.url);
+
         if (this.opt.rewrite) {
-            this.script = "/index.php";
-        } else {
-            this.script = withoutQueryString(req.url);
-
-            if (this.script.endsWith("/")) {
-                this.script += "index.php";
+            if (!fs.existsSync(this.opt.documentRoot + this.script)) {
+                this.script = "/";
             }
+        }
 
-            if (!this.script.endsWith(".php")) {
-                next();
-                return;
-            }
+        if (this.script.endsWith("/")) {
+            this.script += "index.php";
+        }
+
+        if (!this.script.endsWith(".php")) {
+            next();
+            return;
         }
 
         new Responder.Responder(this, req, res, next);

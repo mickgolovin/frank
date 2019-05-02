@@ -10,9 +10,10 @@ const options = {
     socketOptions: { path:  "/run/php/php7.2-fpm.sock" },
 }
 
-const app = express()
-const php_serv = php_fpm(options);
-app.use(php_serv);
-//app.use(express.static('php_files'));
+const app = express();
+app.use(function (req, res, next) {
+    php_fpm(options, req, res, next);
+});
+app.use(express.static('php_files'));
 
 app.listen(3000, '0.0.0.0')
