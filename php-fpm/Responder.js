@@ -5,35 +5,8 @@ exports.Responder = void 0;
 var FCGI = require("./FCGI");
 var FCGIClient = require("./FCGIClient");
 
-function objectSpread(target) {
-    for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i] != null ? arguments[i] : {};
-        var ownKeys = Object.keys(source);
-        if (typeof Object.getOwnPropertySymbols === 'function') {
-            ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
-                return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-            }));
-        }
-        ownKeys.forEach(function (key) {
-            Property(target, key, source[key]);
-        });
-    }
-    return target;
-}
-
-function Property(obj, key, value) {
-    if (key in obj) {
-        Object.defineProperty(obj, key, {
-            value: value, enumerable: true, configurable: true, writable: true
-        });
-    } else {
-        obj[key] = value;
-    }
-    return obj;
-}
-
 class Responder extends FCGIClient.FCGIClient {
-    constructor(handler, file, req, res, next) {
+    constructor(handler, req, res, next) {
         super(handler.opt.socketOptions);
 
         this.handler = handler;
@@ -43,7 +16,7 @@ class Responder extends FCGIClient.FCGIClient {
         this.gotHead = false;
         this.reqId = handler.getFreeReqId();
 
-        const env = createEnvironment(handler.opt.documentRoot, file, req, handler.opt.env);
+        const env = createEnvironment(handler, req, res);
 
         this.send(FCGI.MSG.BEGIN_REQUEST, FCGI.createBeginRequestBody(FCGI.ROLE.RESPONDER, FCGI.DONT_KEEP_CONN));
         this.send(FCGI.MSG.PARAMS, FCGI.createKeyValueBufferFromObject(env));
@@ -122,43 +95,50 @@ class Responder extends FCGIClient.FCGIClient {
 
 exports.Responder = Responder;
 
-function createEnvironment(documentRoot, file, req, extraEnv) {
-    const sep = req.url.indexOf("?");
-    const qs = sep === -1 ? "" : req.url.substr(sep + 1);
+function createEnvironment(handler, req, res) {
+    const queryString = req.url.indexOf("?") === -1 ? "" : req.url.substr(req.url.indexOf("?") + 1);
     const env = {
-        GATEWAY_INTERFACE: "CGI/1.1",
-        PATH: "",
-        REQUEST_METHOD: req.method,
-        REDIRECT_STATUS: 200,
-        REMOTE_ADDR: req.connection.remoteAddress || "",
-        REMOTE_PORT: req.connection.remotePort || "",
-        SERVER_PROTOCOL: req.protocol.toUpperCase() + "/" + req.httpVersion,
-        SERVER_ADDR: req.connection.localAddress,
-        SERVER_PORT: req.connection.localPort,
-        SERVER_SOFTWARE: "express-php-fpm",
-        SERVER_NAME: "",
-        SERVER_ADMIN: "",
         SERVER_SIGNATURE: "",
-        DOCUMENT_ROOT: documentRoot,
-        SCRIPT_FILENAME: documentRoot + file,
-        SCRIPT_NAME: file,
+        SERVER_SOFTWARE: 'Frank WEB Server',
+        SERVER_NAME: req.connection.domain || "",
+        SERVER_ADDR: req.connection.localAddress || "",
+        SERVER_PORT: req.connection.localPort || "",
+        REMOTE_ADDR: req.connection.remoteAddress || "",
+        DOCUMENT_ROOT: handler.opt.documentRoot,
+        REQUEST_SCHEME: req.protocol,
+        SERVER_ADMIN: "[no address given]",
+        SCRIPT_FILENAME: handler.opt.documentRoot + handler.script,
+        REMOTE_PORT: req.connection.remotePort || "",
+        REDIRECT_QUERY_STRING: queryString,
+        REDIRECT_URL: "",
+        GATEWAY_INTERFACE: 'CGI/1.1',
+        SERVER_PROTOCOL: 'HTTP/1.1',
+        REQUEST_METHOD: req.method,
+        QUERY_STRING: queryString,
         REQUEST_URI: req.url,
-        QUERY_STRING: qs,
-        CONTENT_TYPE: req.headers["content-type"] || "",
-        CONTENT_LENGTH: req.headers["content-length"] || "" // AUTH_TYPE
-        // PATH_INFO
-        // PATH_TRANSLATED
-        // REMOTE_HOST
-        // REMOTE_IDENT
-        // REMOTE_USER
-        // UNIQUE_ID
+        SCRIPT_NAME: handler.script,
+        PHP_SELF: handler.script,
 
+        //HTTPS: req.protocol === 'https' ? 'on' : undefined,
+        //SERVER_PROTOCOL: req.protocol.toUpperCase() + "/" + req.httpVersion,
     };
-    const headers = Object.entries(req.headers).reduce((acc, [key, value]) => {
-        return objectSpread({}, acc, {
-            ["HTTP_" + key.toUpperCase().replace(/-/g, "_")]: String(value)
-        });
-    }, {});
 
-    return objectSpread({}, env, headers, extraEnv);
+    const HTTP_headers = {};
+    const ENV_headers = {};
+    const XENV_headers = {};
+
+    Object.entries(req.headers).reverse().map(([key]) => {
+        HTTP_headers["HTTP_" + key.toUpperCase().replace(/-/g, "_")] = String(req.headers[key]);
+    });
+
+    Object.entries(env).reverse().map(([key]) => {
+        ENV_headers[key] = env[key];
+    });
+
+    Object.entries(handler.opt.env).reverse().map(([key]) => {
+        XENV_headers[key] = handler.opt.env[key];
+    });
+
+    return Object.assign(XENV_headers, ENV_headers, HTTP_headers);
+
 }

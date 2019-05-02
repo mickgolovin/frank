@@ -25,18 +25,18 @@ class Handler {
     }
 
     handle(req, res, next) {
-        let file = withoutQueryString(req.url);
+        this.script = withoutQueryString(req.url);
 
-        if (file.endsWith("/")) {
-            file += "index.php";
+        if (this.script.endsWith("/")) {
+            this.script += "index.php";
         }
 
-        if (!file.endsWith(".php")) {
+        if (!this.script.endsWith(".php")) {
             next();
             return;
         }
 
-        new Responder.Responder(this, file, req, res, next);
+        new Responder.Responder(this, req, res, next);
     }
 
     getFreeReqId() {

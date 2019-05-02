@@ -2,7 +2,7 @@
 
 exports.FCGIClient = void 0;
 
-var net = require("net");;
+var net = require("net");
 var FCGI = require("./FCGI");
 
 class FCGIClient {
