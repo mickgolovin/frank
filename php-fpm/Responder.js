@@ -115,7 +115,7 @@ function createEnvironment(handler, req, res) {
         SERVER_PROTOCOL: 'HTTP/1.1',
         REQUEST_METHOD: req.method,
         QUERY_STRING: queryString,
-        REQUEST_URI: req.url,
+        REQUEST_URI: handler.opt.env.REQUEST_URI || req.url,
         SCRIPT_NAME: handler.script,
         PHP_SELF: handler.script,
 

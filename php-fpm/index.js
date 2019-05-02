@@ -25,15 +25,19 @@ class Handler {
     }
 
     handle(req, res, next) {
-        this.script = withoutQueryString(req.url);
+        if (this.opt.rewrite) {
+            this.script = "/index.php";
+        } else {
+            this.script = withoutQueryString(req.url);
 
-        if (this.script.endsWith("/")) {
-            this.script += "index.php";
-        }
+            if (this.script.endsWith("/")) {
+                this.script += "index.php";
+            }
 
-        if (!this.script.endsWith(".php")) {
-            next();
-            return;
+            if (!this.script.endsWith(".php")) {
+                next();
+                return;
+            }
         }
 
         new Responder.Responder(this, req, res, next);
