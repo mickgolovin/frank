@@ -1,7 +1,6 @@
 "use strict";
 
-exports.default = init;
-exports.Handler = void 0;
+exports = module.exports = init;
 
 var express = require("express");
 var Responder = require("./Responder");

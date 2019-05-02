@@ -1,6 +1,6 @@
 "use strict";
 
-exports.Responder = void 0;
+exports.Responder;
 
 var FCGI = require("./FCGI");
 var FCGIClient = require("./FCGIClient");
@@ -16,7 +16,7 @@ class Responder extends FCGIClient.FCGIClient {
         this.gotHead = false;
         this.reqId = handler.getFreeReqId();
 
-        const env = createEnvironment(handler, req, res);
+        const env = createEnvironment(handler, req);
 
         this.send(FCGI.MSG.BEGIN_REQUEST, FCGI.createBeginRequestBody(FCGI.ROLE.RESPONDER, FCGI.DONT_KEEP_CONN));
         this.send(FCGI.MSG.PARAMS, FCGI.createKeyValueBufferFromObject(env));
@@ -95,8 +95,10 @@ class Responder extends FCGIClient.FCGIClient {
 
 exports.Responder = Responder;
 
-function createEnvironment(handler, req, res) {
-    const queryString = req.url.indexOf("?") === -1 ? "" : req.url.substr(req.url.indexOf("?") + 1);
+function createEnvironment(handler, req) {
+    const sep = req.url.indexOf("?");
+    const queryString = sep === -1 ? "" : req.url.substr(sep + 1);
+    const queryURL = sep === -1 ? "" : req.url.substr(0, sep);
     const env = {
         SERVER_SIGNATURE: "",
         SERVER_SOFTWARE: 'Frank WEB Server',
@@ -110,17 +112,14 @@ function createEnvironment(handler, req, res) {
         SCRIPT_FILENAME: handler.opt.documentRoot + handler.script,
         REMOTE_PORT: req.connection.remotePort || "",
         REDIRECT_QUERY_STRING: queryString,
-        REDIRECT_URL: "",
+        REDIRECT_URL: queryURL,
         GATEWAY_INTERFACE: 'CGI/1.1',
         SERVER_PROTOCOL: 'HTTP/1.1',
         REQUEST_METHOD: req.method,
         QUERY_STRING: queryString,
-        REQUEST_URI: handler.opt.env.REQUEST_URI || req.url,
-        SCRIPT_NAME: handler.script,
-        PHP_SELF: handler.script,
+        REQUEST_URI: req.url,
+        SCRIPT_NAME: handler.script
 
-        //HTTPS: req.protocol === 'https' ? 'on' : undefined,
-        //SERVER_PROTOCOL: req.protocol.toUpperCase() + "/" + req.httpVersion,
     };
 
     const HTTP_headers = {};
