@@ -1,0 +1,25 @@
+{
+    "APP_NAME": "TEST",
+    "SERVER_IP" : "127.0.0.1",
+    "SERVER_PORT": 3000,
+    "ROOT_DIR": "/home/mhlvn/Atom projects/frank/php_files",
+    "COMPRESSION": true,
+    "HELMET": true,
+
+    "SSL": {
+        "ENABLE": false
+    },
+
+    "STATIC": {
+
+    },
+
+    "PHP_FPM": {
+        "ENABLE": true,
+        "ENV": {},
+        "REWRITE": false,
+        "SOCKET": { "path":  "/run/php/php7.2-fpm.sock" }
+    },
+
+    "DENY": ["/phpmyadmin", "/assets"]
+}

@@ -5,8 +5,8 @@ exports = module.exports = init;
 const Responder = require("./Responder");
 const fs = require("fs");
 
-function init(opt, req, res, next) {
-    return new Handler(opt, req, res, next);
+function init(ROOT_DIR, PHP_FPM, req, res, next) {
+    return new Handler(ROOT_DIR, PHP_FPM, req, res, next);
 }
 
 function withoutQueryString(url) {
@@ -15,8 +15,9 @@ function withoutQueryString(url) {
 }
 
 class Handler {
-    constructor(opt, req, res, next) {
-        this.opt = opt;
+    constructor(ROOT_DIR, PHP_FPM, req, res, next) {
+        this.ROOT_DIR = ROOT_DIR,
+        this.PHP_FPM = PHP_FPM;
         this.connections = new Array(100);
         this.handle(req, res, next);
     }
@@ -24,8 +25,8 @@ class Handler {
     handle(req, res, next) {
         this.script = withoutQueryString(req.url);
 
-        if (this.opt.rewrite) {
-            if (!fs.existsSync(this.opt.RootDir + this.script)) {
+        if (this.PHP_FPM.REWRITE) {
+            if (!fs.existsSync(this.ROOT_DIR + this.script)) {
                 this.script = "/";
             }
         }

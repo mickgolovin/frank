@@ -5,7 +5,7 @@ const FCGIClient = require("./FCGIClient");
 
 class Responder extends FCGIClient.FCGIClient {
     constructor(handler, req, res, next) {
-        super(handler.opt.socket);
+        super(handler.PHP_FPM.SOCKET);
 
         this.handler = handler;
         this.req = req;
@@ -103,10 +103,10 @@ function createEnvironment(handler, req) {
         SERVER_ADDR: req.connection.localAddress,
         SERVER_PORT: req.connection.localPort,
         REMOTE_ADDR: req.connection.remoteAddress,
-        DOCUMENT_ROOT: handler.opt.RootDir,
+        DOCUMENT_ROOT: handler.ROOT_DIR,
         REQUEST_SCHEME: req.protocol,
-        SERVER_ADMIN: handler.opt.env.SERVER_ADMIN || "",
-        SCRIPT_FILENAME: handler.opt.RootDir + handler.script,
+        SERVER_ADMIN: handler.PHP_FPM.ENV.SERVER_ADMIN || "",
+        SCRIPT_FILENAME: handler.ROOT_DIR + handler.script,
         REMOTE_PORT: req.connection.remotePort,
         REDIRECT_QUERY_STRING: queryString,
         REDIRECT_URL: queryURL,
@@ -132,8 +132,8 @@ function createEnvironment(handler, req) {
         ENV_headers[key] = env[key];
     });
 
-    Object.entries(handler.opt.env).reverse().map(([key]) => {
-        XENV_headers[key] = handler.opt.env[key];
+    Object.entries(handler.PHP_FPM.ENV).reverse().map(([key]) => {
+        XENV_headers[key] = handler.PHP_FPM.ENV[key];
     });
 
     return Object.assign(XENV_headers, ENV_headers, HTTP_headers);
