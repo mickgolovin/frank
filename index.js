@@ -5,10 +5,10 @@ const php_fpm = require("./php-fpm")
 
 console.log(__dirname + "/php_files");
 const options = {
-    documentRoot: __dirname + "/php_files",
+    RootDir: __dirname + "/php_files",
     env: {},
     rewrite: false,
-    socketOptions: { path:  "/run/php/php7.2-fpm.sock" },
+    socket: { path:  "/run/php/php7.2-fpm.sock" },
 }
 
 const app = express();

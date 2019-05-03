@@ -1,25 +1,23 @@
 "use strict";
 
-exports.FCGIClient;
-
-var net = require("net");
-var FCGI = require("./FCGI");
+const net = require("net");
+const FCGI = require("./FCGI");
 
 class FCGIClient {
-    constructor(socketOptions) {
+    constructor(socket) {
         this.buffer = Buffer.alloc(0);
         this.reqId = 0;
         this.onData = this.onData.bind(this);
         this.onError = this.onError.bind(this);
         this.onClose = this.onClose.bind(this);
-        this.socket = net.connect(socketOptions);
+        this.socket = net.connect(socket);
         this.socket.on("data", this.onData);
         this.socket.on("error", this.onError);
         this.socket.on("close", this.onClose);
     }
 
     send(msgType, content) {
-        for (let offset = 0; offset < content.length || offset === 0; offset += 0xffff) {
+        for (var offset = 0; offset < content.length || offset === 0; offset += 0xffff) {
             const chunk = content.slice(offset, offset + 0xffff);
             const header = FCGI.createHeader(FCGI.VERSION_1, msgType, this.reqId, chunk.length, 0);
             this.socket.write(header);

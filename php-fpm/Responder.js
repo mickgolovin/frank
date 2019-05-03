@@ -1,13 +1,11 @@
 "use strict";
 
-exports.Responder;
-
-var FCGI = require("./FCGI");
-var FCGIClient = require("./FCGIClient");
+const FCGI = require("./FCGI");
+const FCGIClient = require("./FCGIClient");
 
 class Responder extends FCGIClient.FCGIClient {
     constructor(handler, req, res, next) {
-        super(handler.opt.socketOptions);
+        super(handler.opt.socket);
 
         this.handler = handler;
         this.req = req;
@@ -93,24 +91,23 @@ class Responder extends FCGIClient.FCGIClient {
 
 }
 
-exports.Responder = Responder;
-
 function createEnvironment(handler, req) {
     const sep = req.url.indexOf("?");
     const queryString = sep === -1 ? "" : req.url.substr(sep + 1);
     const queryURL = sep === -1 ? "" : req.url.substr(0, sep);
     const env = {
         SERVER_SIGNATURE: "",
-        SERVER_SOFTWARE: 'Frank WEB Server',
+        SERVER_SOFTWARE: "NODE SERVER",
+        REDIRECT_STATUS: 200,
         SERVER_NAME: req.connection.domain || "",
-        SERVER_ADDR: req.connection.localAddress || "",
-        SERVER_PORT: req.connection.localPort || "",
-        REMOTE_ADDR: req.connection.remoteAddress || "",
-        DOCUMENT_ROOT: handler.opt.documentRoot,
+        SERVER_ADDR: req.connection.localAddress,
+        SERVER_PORT: req.connection.localPort,
+        REMOTE_ADDR: req.connection.remoteAddress,
+        DOCUMENT_ROOT: handler.opt.RootDir,
         REQUEST_SCHEME: req.protocol,
-        SERVER_ADMIN: "[no address given]",
-        SCRIPT_FILENAME: handler.opt.documentRoot + handler.script,
-        REMOTE_PORT: req.connection.remotePort || "",
+        SERVER_ADMIN: handler.opt.env.SERVER_ADMIN || "",
+        SCRIPT_FILENAME: handler.opt.RootDir + handler.script,
+        REMOTE_PORT: req.connection.remotePort,
         REDIRECT_QUERY_STRING: queryString,
         REDIRECT_URL: queryURL,
         GATEWAY_INTERFACE: 'CGI/1.1',
@@ -140,5 +137,6 @@ function createEnvironment(handler, req) {
     });
 
     return Object.assign(XENV_headers, ENV_headers, HTTP_headers);
-
 }
+
+exports.Responder = Responder;

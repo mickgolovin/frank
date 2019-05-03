@@ -25,7 +25,7 @@ class Handler {
         this.script = withoutQueryString(req.url);
 
         if (this.opt.rewrite) {
-            if (!fs.existsSync(this.opt.documentRoot + this.script)) {
+            if (!fs.existsSync(this.opt.RootDir + this.script)) {
                 this.script = "/";
             }
         }
@@ -43,7 +43,7 @@ class Handler {
     }
 
     getFreeReqId() {
-        let i = 0;
+        var i = 0;
 
         while (this.connections[++i]) {}
 
@@ -55,7 +55,4 @@ class Handler {
     freeUpReqId(reqId) {
         this.connections[reqId] = false;
     }
-
 }
-
-exports.Handler = Handler;

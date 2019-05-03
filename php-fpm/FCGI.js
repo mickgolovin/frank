@@ -142,8 +142,7 @@ function createKeyValueBuffer(key, valueArg) {
     const keyByteLength = key.length > 127 ? 4 : 1;
     const valueByteLength = value.length > 127 ? 4 : 1;
     const buff = Buffer.alloc(keyByteLength + valueByteLength + key.length + value.length);
-
-    let i = 0;
+    var i = 0;
 
     if (keyByteLength === 4) {
         buff[i++] = key.length >> 24 | 1 << 7; // unsigned char keyLengthB3   // keyLengthB3  >> 7 == 1
