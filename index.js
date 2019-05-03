@@ -15,7 +15,7 @@ if (CFG.COMPRESSION) {
     app.use(compression());
 }
 
-if (CFG.DENY.lenght) {
+if (CFG.DENY.length) {
     app.use(CFG.DENY, function (req, res) {
         res.status(403).send();
     });

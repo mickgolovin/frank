@@ -17,7 +17,7 @@
     "PHP_FPM": {
         "ENABLE": true,
         "ENV": {},
-        "REWRITE": false,
+        "REWRITE": true,
         "SOCKET": { "path":  "/run/php/php7.2-fpm.sock" }
     },
 
