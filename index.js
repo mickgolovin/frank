@@ -1,6 +1,6 @@
 const express = require("express")
 const compression = require('compression')
-const php_fpm = require("./php-fpm")
+const php_fpm = require("./srv_mod/php-fpm")
 
 const options = {
     RootDir: __dirname + "/php_files",
@@ -16,9 +16,6 @@ app.use(function (req, res, next) {
 });
 app.use(express.static('php_files'));
 
-app.use(function (err, req, res, next) {
-    console.log(err);;
-});
 
 
 app.listen(3000, '0.0.0.0')
