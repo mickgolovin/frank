@@ -15,6 +15,9 @@ app.use(function (req, res, next) {
     php_fpm(options, req, res, next);
 });
 app.use(express.static('php_files'));
+app.use(function(req, res){
+    res.status(404).send();
+});
 
 
 

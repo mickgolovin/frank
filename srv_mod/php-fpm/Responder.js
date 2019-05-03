@@ -33,7 +33,7 @@ class Responder extends FCGIClient.FCGIClient {
     }
 
     onError() {
-        this.next();
+        this.res.status(502).send();
     }
 
     onClose() {
