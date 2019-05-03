@@ -1,6 +1,6 @@
 "use strict";
 
-exports.FCGIClient = void 0;
+exports.FCGIClient;
 
 var net = require("net");
 var FCGI = require("./FCGI");
@@ -9,7 +9,6 @@ class FCGIClient {
     constructor(socketOptions) {
         this.buffer = Buffer.alloc(0);
         this.reqId = 0;
-        this.socket = void 0;
         this.onData = this.onData.bind(this);
         this.onError = this.onError.bind(this);
         this.onClose = this.onClose.bind(this);

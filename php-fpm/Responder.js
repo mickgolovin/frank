@@ -118,8 +118,9 @@ function createEnvironment(handler, req) {
         REQUEST_METHOD: req.method,
         QUERY_STRING: queryString,
         REQUEST_URI: req.url,
-        SCRIPT_NAME: handler.script
-
+        SCRIPT_NAME: handler.script,
+        CONTENT_TYPE: req.headers["content-type"] || "",
+        CONTENT_LENGTH: req.headers["content-length"] || ""
     };
 
     const HTTP_headers = {};

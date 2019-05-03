@@ -2,15 +2,17 @@ const express = require("express")
 const php_fpm = require("./php-fpm")
 
 
+
 console.log(__dirname + "/php_files");
 const options = {
     documentRoot: __dirname + "/php_files",
     env: {},
-    rewrite: true,
+    rewrite: false,
     socketOptions: { path:  "/run/php/php7.2-fpm.sock" },
 }
 
 const app = express();
+
 app.use(function (req, res, next) {
     php_fpm(options, req, res, next);
 });
